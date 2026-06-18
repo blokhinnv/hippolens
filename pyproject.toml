@@ -1,0 +1,16 @@
+[project]
+name = "hippolens"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "hipporag>=2.0.0a3",
+    "pytest>=9.1.0",
+    "ruff>=0.15.17",
+]
+
+[dependency-groups]
+dev = [
+    "ty>=0.0.50",
+]

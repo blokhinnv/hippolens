@@ -1,0 +1,43 @@
+---
+description: All Python work in this project goes through uv — package management, venvs, scripts, and tooling.
+alwaysApply: true
+---
+
+# Python via uv
+
+All Python work in this project is done through [uv](https://docs.astral.sh/uv/). Do not use `pip`, `pip install`, `poetry`, `conda`, or bare `python`/`python3` for project tasks.
+
+## Package management
+
+- Dependencies live in `pyproject.toml`; lockfile is `uv.lock`.
+- Install/sync: `uv sync`
+- Add/remove: `uv add <pkg>`, `uv remove <pkg>`
+- Dev deps: `uv add --dev <pkg>`
+
+## Running code
+
+- Scripts and modules: `uv run python script.py`, `uv run -m module`
+- CLI tools from deps: `uv run pytest`, `uv run ruff check`, etc.
+- One-off tools without adding to project: `uv tool run <tool>`
+
+## Environments
+
+- Prefer the project venv managed by uv (`.venv` after `uv sync`).
+- Create/sync explicitly when needed: `uv venv`, then `uv sync`
+- Do not manually `source` another venv or install packages outside uv.
+
+## New Python setup
+
+When bootstrapping Python in this repo:
+
+```bash
+uv init          # if no pyproject.toml yet
+uv add <deps>
+uv sync
+```
+
+## Do not
+
+- `pip install ...` (use `uv add` or `uv pip install` only inside uv-managed contexts if truly needed)
+- `python -m venv` / `virtualenv` for this project
+- `poetry add`, `conda install`, or global interpreter installs for project deps
