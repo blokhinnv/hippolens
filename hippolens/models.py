@@ -16,6 +16,9 @@ class GraphNode:
     pagerank: float
     seed_weight: float
     is_seed: bool
+    x: float | None = None
+    y: float | None = None
+    style: dict[str, Any] | None = None
 
 
 @dataclass
@@ -23,6 +26,8 @@ class GraphEdge:
     source: str
     target: str
     weight: float
+    edge_type: Literal["phrase_phrase", "phrase_passage"] | None = None
+    style: dict[str, Any] | None = None
 
 
 @dataclass
@@ -73,8 +78,11 @@ class LensQueryResult:
         return cls(
             question=data["question"],
             graph_mode=data["graph_mode"],
-            nodes=[GraphNode(**n) for n in data["nodes"]],
-            edges=[GraphEdge(**e) for e in data["edges"]],
+            nodes=[GraphNode(**{k: v for k, v in n.items() if k in GraphNode.__dataclass_fields__}) for n in data["nodes"]],
+            edges=[
+                GraphEdge(**{k: v for k, v in e.items() if k in GraphEdge.__dataclass_fields__})
+                for e in data["edges"]
+            ],
             ranked_passages=[RankedItem(**r) for r in data["ranked_passages"]],
             ranked_phrases=[RankedItem(**r) for r in data["ranked_phrases"]],
             seed_node_ids=data["seed_node_ids"],

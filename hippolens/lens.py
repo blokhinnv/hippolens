@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import time
 import types
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from hipporag.utils.misc_utils import compute_mdhash_id, min_max_normalize
 
-from hippolens.models import LensQueryResult, RankedItem
+from hippolens.graph_export import build_all_nodes, build_edges, export_full, export_subgraph
+from hippolens.layout import two_orbit_layout
+from hippolens.models import GraphNode, LensQueryResult, RankedItem
+from hippolens.style import encode_node_style, style_edges
 
 if TYPE_CHECKING:
     from hipporag import HippoRAG
@@ -156,6 +159,9 @@ class HippoLens:
         self,
         query: str,
         num_to_retrieve: int | None = None,
+        graph_mode: Literal["subgraph", "full"] = "subgraph",
+        top_n_phrases: int = 30,
+        top_m_passages: int = 20,
     ) -> LensQueryResult:
         hr = self._hr
         timings: dict[str, float] = {}
@@ -199,12 +205,18 @@ class HippoLens:
             ranked_phrases = self._build_ranked_phrases_ppr()
 
         seed_node_ids = self._seed_node_ids()
+        nodes, edges = self._build_graph_payload(
+            graph_mode=graph_mode,
+            seed_node_ids=seed_node_ids,
+            top_n_phrases=top_n_phrases,
+            top_m_passages=top_m_passages,
+        )
 
         return LensQueryResult(
             question=query,
-            graph_mode="subgraph",
-            nodes=[],
-            edges=[],
+            graph_mode=graph_mode,
+            nodes=nodes,
+            edges=edges,
             ranked_passages=ranked_passages,
             ranked_phrases=ranked_phrases,
             seed_node_ids=seed_node_ids,
@@ -214,6 +226,82 @@ class HippoLens:
             timings=timings,
             default_top_k=default_top_k,
         )
+
+    def _build_graph_payload(
+        self,
+        *,
+        graph_mode: Literal["subgraph", "full"],
+        seed_node_ids: list[str],
+        top_n_phrases: int,
+        top_m_passages: int,
+    ) -> tuple[list[GraphNode], list]:
+        hr = self._hr
+        all_nodes = build_all_nodes(hr, self._last_ppr_scores, self._last_node_weights)
+        all_node_ids = {n.id for n in all_nodes}
+        all_edges = build_edges(hr, all_node_ids)
+
+        if graph_mode == "full":
+            nodes, edges = export_full(all_nodes, all_edges)
+        else:
+            nodes, edges = export_subgraph(
+                all_nodes,
+                all_edges,
+                hipporag=hr,
+                seed_node_ids=seed_node_ids,
+                top_n_phrases=top_n_phrases,
+                top_m_passages=top_m_passages,
+            )
+
+        if not nodes:
+            return nodes, edges
+
+        positions = two_orbit_layout(nodes)
+        phrase_pprs = [n.pagerank for n in nodes if n.node_type == "phrase"]
+        passage_pprs = [n.pagerank for n in nodes if n.node_type == "passage"]
+        phrase_ppr_min = min(phrase_pprs) if phrase_pprs else 0.0
+        phrase_ppr_max = max(phrase_pprs) if phrase_pprs else 1.0
+        passage_ppr_min = min(passage_pprs) if passage_pprs else 0.0
+        passage_ppr_max = max(passage_pprs) if passage_pprs else 1.0
+        phrase_seed_weights = [n.seed_weight for n in nodes if n.node_type == "phrase"]
+        passage_seed_weights = [n.seed_weight for n in nodes if n.node_type == "passage"]
+        phrase_seed_min = min(phrase_seed_weights) if phrase_seed_weights else 0.0
+        phrase_seed_max = max(phrase_seed_weights) if phrase_seed_weights else 1.0
+        passage_seed_min = min(passage_seed_weights) if passage_seed_weights else 0.0
+        passage_seed_max = max(passage_seed_weights) if passage_seed_weights else 1.0
+
+        styled_nodes: list[GraphNode] = []
+        for node in nodes:
+            x, y = positions[node.id]
+            style = encode_node_style(
+                node,
+                phrase_ppr_min,
+                phrase_ppr_max,
+                passage_ppr_min,
+                passage_ppr_max,
+                phrase_seed_min,
+                phrase_seed_max,
+                passage_seed_min,
+                passage_seed_max,
+            )
+            styled_nodes.append(
+                GraphNode(
+                    id=node.id,
+                    node_type=node.node_type,
+                    label=node.label,
+                    content=node.content,
+                    pagerank=node.pagerank,
+                    seed_weight=node.seed_weight,
+                    is_seed=node.is_seed,
+                    x=x,
+                    y=y,
+                    style=style,
+                )
+            )
+
+        nodes_by_id = {n.id: n for n in styled_nodes}
+        styled_edges = style_edges(edges, nodes_by_id)
+
+        return styled_nodes, styled_edges
 
     def _seed_node_ids(self) -> list[str]:
         if self._last_node_weights is None:

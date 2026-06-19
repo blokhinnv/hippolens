@@ -2,7 +2,7 @@
 
 
 def main() -> None:
-    print("HippoLens — use `uv run streamlit run hippolens/app/main.py` after Phase C.")
+    print("HippoLens — run: uv run streamlit run hippolens/app/main.py")
 
 
 if __name__ == "__main__":

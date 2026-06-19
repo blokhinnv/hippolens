@@ -117,49 +117,49 @@
 
 ### B.1 `graph_export.py` — построение узлов
 
-- [ ] `build_all_nodes(hipporag, ppr_scores, node_weights) -> list[GraphNode]`
+- [x] `build_all_nodes(hipporag, ppr_scores, node_weights) -> list[GraphNode]`
   - phrase: content из `entity_embedding_store`
   - passage: content из `chunk_embedding_store`
   - `pagerank`, `seed_weight`, `is_seed`
-- [ ] `build_edges(hipporag, node_ids: set[str]) -> list[GraphEdge]` из `graph.es` / `node_to_node_stats`
+- [x] `build_edges(hipporag, node_ids: set[str]) -> list[GraphEdge]` из `graph.es` / `node_to_node_stats`
 
 **Приёмка:** типы узлов корректны; каждый edge ссылается на существующие id.
 
 ### B.2 Subgraph export
 
-- [ ] `export_subgraph(nodes, edges, *, top_n_phrases=30, top_m_passages=20) -> (nodes, edges)`
-- [ ] Логика отбора — PLAN.md §5.1
-- [ ] Hard cap 200 nodes
+- [x] `export_subgraph(nodes, edges, *, top_n_phrases=30, top_m_passages=20) -> (nodes, edges)`
+- [x] Логика отбора — PLAN.md §5.1
+- [x] Hard cap 200 nodes
 
 **Приёмка:** `test_subgraph_limits` — ≤200 узлов на demo.
 
 ### B.3 Full graph export
 
-- [ ] `export_full(nodes, edges) -> (nodes, edges)` — без фильтрации
-- [ ] Флаг `warn_large: bool` если `len(nodes) > 500`
+- [x] `export_full(nodes, edges) -> (nodes, edges)` — без фильтрации
+- [x] Флаг `warn_large: bool` если `len(nodes) > 500`
 
 **Приёмка:** `test_subgraph_vs_full` — full ⊃ subgraph по id.
 
 ### B.4 `layout.py`
 
-- [ ] `two_orbit_layout(nodes: list[GraphNode]) -> dict[str, tuple[float, float]]`
-- [ ] phrase → круг radius `r1=100`, passage → `r2=200` (константы в модуле)
-- [ ] Возврат нормализованных координат для Cytoscape
+- [x] `two_orbit_layout(nodes: list[GraphNode]) -> dict[str, tuple[float, float]]`
+- [x] phrase → круг radius `r1=100`, passage → `r2=200` (константы в модуле)
+- [x] Возврат нормализованных координат для Cytoscape
 
 **Приёмка:** `test_layout` — все phrase на ~r1, passage на ~r2 (±tolerance).
 
 ### B.5 `path_highlight.py`
 
-- [ ] `find_paths_to_passage(hipporag, passage_id, seed_ids) -> list[list[str]]`
+- [x] `find_paths_to_passage(hipporag, passage_id, seed_ids) -> list[list[str]]`
   - кратчайшие пути igraph от каждого seed phrase до passage
   - только undirected shortest path
-- [ ] `path_elements(paths) -> tuple[set[str], set[tuple[str,str]]]` — узлы и рёбра для highlight
+- [x] `path_elements(paths) -> tuple[set[str], set[tuple[str,str]]]` — узлы и рёбра для highlight
 
 **Приёмка:** `test_path_highlight` — для demo query и top passage путь не пуст (или skip если DPR fallback).
 
 ### B.6 Визуальное кодирование (Python side)
 
-- [ ] `encode_node_style(node: GraphNode, ppr_min, ppr_max, seed_max) -> dict`
+- [x] `encode_node_style(node: GraphNode, ppr_min, ppr_max, seed_max) -> dict`
   - `color`: interpolate по normalized PPR
   - `size`: `8 + 24 * (seed_weight / seed_max)` если seed, иначе `8`
   - `borderWidth`: 2 если `is_seed` else 0
@@ -168,8 +168,8 @@
 
 ### B.7 Интеграция в `retrieve_lens`
 
-- [ ] Параметр `graph_mode: Literal["subgraph", "full"] = "subgraph"`
-- [ ] Вызов export + layout → записать `x, y, style` в nodes или отдельный `graph_payload` dict
+- [x] Параметр `graph_mode: Literal["subgraph", "full"] = "subgraph"`
+- [x] Вызов export + layout → записать `x, y, style` в nodes или отдельный `graph_payload` dict
 
 **Приёмка:** `retrieve_lens(..., graph_mode="full")` vs `"subgraph"` — разный `len(nodes)`.
 
@@ -179,72 +179,72 @@
 
 ### C.1 Каркас `app/main.py`
 
-- [ ] `load_dotenv()` не обязателен для UI (индекс уже построен), но `save_dir` должен существовать
-- [ ] `HippoRAG(global_config=make_demo_config(save_dir))` + `HippoLens(hr)` в `st.session_state`
+- [x] `load_dotenv()` не обязателен для UI (индекс уже построен), но `save_dir` должен существовать
+- [x] `HippoRAG(global_config=make_demo_config(save_dir))` + `HippoLens(hr)` в `st.session_state`
   - **важно:** `llm_name` / `embedding_model_name` в config должны совпадать с теми, что использовались при index (имя влияет на `working_dir`)
-- [ ] Поле query + кнопка Retrieve
-- [ ] Sidebar: graph mode toggle, subgraph params (N, M), top-k slider (passages)
+- [x] Поле query + кнопка Retrieve
+- [x] Sidebar: graph mode toggle, subgraph params (N, M), top-k slider (passages)
 
 **Приёмка:** `uv run streamlit run hippolens/app/main.py` открывается без crash на demo index.
 
 ### C.2 `app/components/graph.py` — Cytoscape widget
 
-- [ ] HTML template с Cytoscape.js (CDN)
-- [ ] Python функция `render_graph(graph_payload, height=600) -> selected_node_id | None`
-- [ ] Передача данных через `json.dumps` в `st.components.v1.html`
-- [ ] Events: `tap` → `postMessage` с node id; hover → qtip/tooltip
+- [x] HTML template с Cytoscape.js (CDN)
+- [x] Python функция `render_graph(graph_payload, height=600) -> selected_node_id | None`
+- [x] Передача данных через `json.dumps` в `st.components.v1.html`
+- [x] Events: `tap` → `postMessage` с node id; hover → qtip/tooltip
 
 **Приёмка:** граф рендерится; клик возвращает id в Streamlit (через query params или component value pattern).
 
 ### C.3 Orbit layout в Cytoscape
 
-- [ ] Использовать preset positions из `layout.py` (не force-directed)
-- [ ] phrase/passage разные shape или label position
+- [x] Использовать preset positions из `layout.py` (не force-directed)
+- [x] phrase/passage разные shape или label position
 
 **Приёмка:** визуально 2 кольца.
 
 ### C.4 Node style: size + color
 
-- [ ] Применить `encode_node_style` к каждому элементу
-- [ ] Легенда в sidebar: «Size = seed weight, Color = PPR»
+- [x] Применить `encode_node_style` к каждому элементу
+- [x] Легенда в sidebar: «Size = seed weight, Color = PPR»
 
 **Приёмка:** соответствует PLAN.md §6.2.
 
 ### C.5 Path highlight в UI
 
-- [ ] При `selected_node` типа passage → вызов `find_paths_to_passage`
-- [ ] Передача `highlight_nodes`, `highlight_edges` в component
-- [ ] Dim non-path elements (opacity 0.15)
-- [ ] Панель «Path phrases»: список phrase на пути
+- [x] При `selected_node` типа passage → вызов `find_paths_to_passage`
+- [x] Передача `highlight_nodes`, `highlight_edges` в component
+- [x] Dim non-path elements (opacity 0.15)
+- [x] Панель «Path phrases»: список phrase на пути
 
 **Приёмка:** клик на passage подсвечивает путь от seeds; повторный клик сбрасывает.
 
 ### C.6 `app/components/rank_panel.py`
 
-- [ ] Список `ranked_passages` с score, обрезка по top-k slider
-- [ ] Список `ranked_phrases` (top 20 informational, без slider)
-- [ ] Клик по строке → select node на графе
+- [x] Список `ranked_passages` с score, обрезка по top-k slider
+- [x] Список `ranked_phrases` (top 20 informational, без slider)
+- [x] Клик по строке → select node на графе
 
 **Приёмка:** top-k меняется мгновенно без кнопки Retrieve.
 
 ### C.7 Top-k highlight на графе
 
-- [ ] При изменении slider: top-k passage nodes — full opacity + border; остальные passages — dimmed
-- [ ] Без rerun полного retrieve — только `st.rerun` от slider с тем же `lens_result`
+- [x] При изменении slider: top-k passage nodes — full opacity + border; остальные passages — dimmed
+- [x] Без rerun полного retrieve — только `st.rerun` от slider с тем же `lens_result`
 
 **Приёмка:** slider 3 → ровно 3 highlighted passages.
 
 ### C.8 Metadata panel
 
-- [ ] `retrieval_mode`, `facts_used`, `timings`, count seeds
-- [ ] Badge «DPR fallback» если `retrieval_mode == "dpr_fallback"`; path highlight disabled
+- [x] `retrieval_mode`, `facts_used`, `timings`, count seeds
+- [x] Badge «DPR fallback» если `retrieval_mode == "dpr_fallback"`; path highlight disabled
 
 **Приёмка:** отображается после retrieve.
 
 ### C.9 Full graph mode
 
-- [ ] Toggle → при следующем retrieve используется `graph_mode="full"`
-- [ ] Warning `st.warning` если nodes > 500
+- [x] Toggle → при следующем retrieve используется `graph_mode="full"`
+- [x] Warning `st.warning` если nodes > 500
 
 **Приёмка:** переключение работает; subgraph быстрее full на demo.
 
