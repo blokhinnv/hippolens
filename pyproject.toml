@@ -20,6 +20,11 @@ hippolens = "hippolens.cli:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.pytest.ini_options]
+markers = [
+    "integration: tests requiring API key and demo index",
+]
+
 [dependency-groups]
 dev = [
     "ty>=0.0.50",

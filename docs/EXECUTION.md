@@ -59,55 +59,55 @@
 
 ### A.1 `models.py`
 
-- [ ] `GraphNode`, `GraphEdge`, `RankedItem`, `LensQueryResult` — dataclasses из PLAN.md §4
-- [ ] Метод `LensQueryResult.to_json()` / `from_dict()` для передачи в Streamlit component
+- [x] `GraphNode`, `GraphEdge`, `RankedItem`, `LensQueryResult` — dataclasses из PLAN.md §4
+- [x] Метод `LensQueryResult.to_json()` / `from_dict()` для передачи в Streamlit component
 
 **Приёмка:** unit test сериализации round-trip.
 
 ### A.2 `HippoLens.__init__`
 
-- [ ] Принимает готовый `HippoRAG` instance (не создаёт сам)
-- [ ] Вызывает `hipporag.prepare_retrieval_objects()` если `not ready_to_retrieve`
-- [ ] Инициализирует `_last_ppr_scores: np.ndarray | None`, `_last_node_weights`, `_last_linking_score_map`
+- [x] Принимает готовый `HippoRAG` instance (не создаёт сам)
+- [x] Вызывает `hipporag.prepare_retrieval_objects()` если `not ready_to_retrieve`
+- [x] Инициализирует `_last_ppr_scores: np.ndarray | None`, `_last_node_weights`, `_last_linking_score_map`
 
 **Приёмка:** `HippoLens(hr)` не падает на demo index.
 
 ### A.3 Patch `run_ppr`
 
-- [ ] Сохранить `original_run_ppr = hipporag.run_ppr`
-- [ ] Wrapped version: вызвать original, но до return вычислить и сохранить full `pagerank_scores` (потребуется либо дублировать вызов `personalized_pagerank`, либо patch на уровне тела `run_ppr` — предпочтительно wrap с доступом к `self.graph.personalized_pagerank` результату)
-- [ ] Привязать patch к конкретному instance: `hipporag.run_ppr = types.MethodType(wrapped, hipporag)`
+- [x] Сохранить `original_run_ppr = hipporag.run_ppr`
+- [x] Wrapped version: вызвать original, но до return вычислить и сохранить full `pagerank_scores` (потребуется либо дублировать вызов `personalized_pagerank`, либо patch на уровне тела `run_ppr` — предпочтительно wrap с доступом к `self.graph.personalized_pagerank` результату)
+- [x] Привязать patch к конкретному instance: `hipporag.run_ppr = types.MethodType(wrapped, hipporag)`
 
 **Приёмка:** после одного `retrieve_lens` `_last_ppr_scores.shape[0] == hipporag.graph.vcount()`.
 
 ### A.4 Patch `graph_search_with_fact_entities`
 
-- [ ] Wrap: перед return сохранить `node_weights`, `linking_score_map` на instance lens
+- [x] Wrap: перед return сохранить `node_weights`, `linking_score_map` на instance lens
 
 **Приёмка:** после retrieve `is_seed` корректен для узлов с `node_weights > 0`.
 
 ### A.5 `retrieve()` — совместимость
 
-- [ ] `HippoLens.retrieve(queries, num_to_retrieve=None)` → делегирует `self._hr.retrieve(...)`
-- [ ] Return type идентичен hipporag
+- [x] `HippoLens.retrieve(queries, num_to_retrieve=None)` → делегирует `self._hr.retrieve(...)`
+- [x] Return type идентичен hipporag
 
 **Приёмка:** `test_retrieve_compat` — docs и scores совпадают с прямым вызовом.
 
 ### A.6 `retrieve_lens()`
 
-- [ ] Один query (str) → вызывает внутренний retrieve pipeline или копирует логику одной итерации из `hipporag.retrieve`
-- [ ] Собирает `LensQueryResult`:
+- [x] Один query (str) → вызывает внутренний retrieve pipeline или копирует логику одной итерации из `hipporag.retrieve`
+- [x] Собирает `LensQueryResult`:
   - `ranked_passages` — все passages с PPR score, sorted desc
   - `ranked_phrases` — все phrases с PPR score, sorted desc
   - `retrieval_mode`: `"ppr"` или `"dpr_fallback"` (если facts пусты)
   - `facts_used`, `timings`, `seed_node_ids`
-- [ ] **Не** обрезать `ranked_passages` по `num_to_retrieve` внутри — обрезка только в UI; поле `default_top_k` = `num_to_retrieve or config.retrieval_top_k`
+- [x] **Не** обрезать `ranked_passages` по `num_to_retrieve` внутри — обрезка только в UI; поле `default_top_k` = `num_to_retrieve or config.retrieval_top_k`
 
 **Приёмка:** `retrieve_lens("...")` возвращает валидный JSON; `len(ranked_passages) == num_passage_nodes`.
 
 ### A.7 Тесты фазы A
 
-- [ ] `tests/test_lens_core.py` — A.3, A.5, A.6 на demo index (pytest marker `@pytest.mark.integration` если нужны keys)
+- [x] `tests/test_lens_core.py` — A.3, A.5, A.6 на demo index (pytest marker `@pytest.mark.integration` если нужны keys)
 
 **Приёмка:** `uv run pytest tests/test_lens_core.py` green.
 
