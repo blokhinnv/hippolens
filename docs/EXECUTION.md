@@ -12,44 +12,44 @@
 
 ### 0.1 Структура пакета
 
-- [ ] Создать `hippolens/` с `__init__.py`, экспорт `HippoLens`
-- [ ] Перенести/удалить заглушку `main.py` в корне или оставить как thin CLI wrapper
-- [ ] Добавить в `pyproject.toml`: `streamlit`, `python-dotenv`, documented entrypoint
+- [x] Создать `hippolens/` с `__init__.py`, экспорт `HippoLens`
+- [x] Перенести/удалить заглушку `main.py` в корне или оставить как thin CLI wrapper
+- [x] Добавить в `pyproject.toml`: `streamlit`, `python-dotenv`, documented entrypoint
 
 **Приёмка:** `uv run python -c "import hippolens"` без ошибок.
 
 ### 0.2 OpenRouter — конфиг и секреты
 
-- [ ] `.env.example`:
+- [x] `.env.example`:
   ```bash
   OPENROUTER_API_KEY=sk-or-v1-...
   OPENAI_API_KEY=sk-or-v1-...   # тот же ключ; hipporag читает OPENAI_API_KEY
   ```
-- [ ] `examples/demo_config.py` — `make_demo_config(save_dir)` (см. PLAN.md §2.2):
+- [x] `examples/demo_config.py` — `make_demo_config(save_dir)` (см. PLAN.md §2.2):
   - `llm_name="openai/gpt-4o-mini"`
   - `llm_base_url="https://openrouter.ai/api/v1"`
   - `embedding_model_name="openai/text-embedding-3-small"`
   - `embedding_base_url="https://openrouter.ai/api/v1"`
-- [ ] Хелпер `load_demo_env()` — `load_dotenv()` + assert `OPENAI_API_KEY`
+- [x] Хелпер `load_demo_env()` — `load_dotenv()` + assert `OPENAI_API_KEY`
 
 **Приёмка:** без `.env` скрипт падает с понятной ошибкой; с ключом — config создаётся.
 
 ### 0.3 Demo corpus и скрипт индексации
 
-- [ ] `examples/demo_corpus.json` — 5–10 коротких passages (текст + id)
-- [ ] `examples/index_corpus.py`:
+- [x] `examples/demo_corpus.json` — 5–10 коротких passages (текст + id)
+- [x] `examples/index_corpus.py`:
   - `load_demo_env()`
   - `HippoRAG(global_config=make_demo_config(save_dir))`
   - `index(docs)` из corpus
   - CLI: `--corpus`, `--save-dir` (default `examples/demo_index`)
-- [ ] README: получение ключа OpenRouter, `cp .env.example .env`, команда индексации, ориентир по стоимости (~$0.1)
+- [x] README: получение ключа OpenRouter, `cp .env.example .env`, команда индексации, ориентир по стоимости (~$0.1)
 
 **Приёмка:** `uv run python examples/index_corpus.py` с валидным ключом создаёт `examples/demo_index/` с graph.pickle и embeddings; повторный запуск использует LLM cache.
 
 ### 0.4 Зафиксировать версию hipporag
 
-- [ ] Pin `hipporag==2.0.0a3` (или текущая рабочая) в `pyproject.toml`
-- [ ] Записать в комментарии к patch: какие методы monkey-patch зависят от внутреннего API
+- [x] Pin `hipporag==2.0.0a3` (или текущая рабочая) в `pyproject.toml`
+- [x] Записать в комментарии к patch: какие методы monkey-patch зависят от внутреннего API
 
 **Приёмка:** `uv lock` актуален.
 

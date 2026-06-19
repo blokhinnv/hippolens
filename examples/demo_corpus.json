@@ -1,0 +1,30 @@
+[
+  {
+    "id": "hippo-1",
+    "text": "The hippopotamus is a large semiaquatic mammal native to sub-Saharan Africa. Despite its stocky shape and short legs, it can outrun a human over short distances."
+  },
+  {
+    "id": "hippo-2",
+    "text": "Hippos spend most of the day in rivers and lakes to keep their skin moist and protected from the sun. At night they leave the water to graze on grasses."
+  },
+  {
+    "id": "hippo-3",
+    "text": "The hippocampus is a brain structure critical for forming new memories and spatial navigation. Damage to the hippocampus can impair the ability to remember recent events."
+  },
+  {
+    "id": "hippo-4",
+    "text": "HippoRAG is a retrieval framework that builds a knowledge graph from passages using open information extraction, then uses personalized PageRank for multi-hop retrieval."
+  },
+  {
+    "id": "hippo-5",
+    "text": "OpenRouter provides a unified API compatible with the OpenAI SDK, allowing access to many language and embedding models through a single API key."
+  },
+  {
+    "id": "hippo-6",
+    "text": "Personalized PageRank seeds the random walk from query-linked entities and phrases, propagating relevance scores across the passage–entity graph."
+  },
+  {
+    "id": "hippo-7",
+    "text": "Dense passage retrieval computes cosine similarity between query and passage embeddings as a fallback when no facts match the query."
+  }
+]

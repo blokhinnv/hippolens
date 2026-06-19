@@ -76,3 +76,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Generated demo index (rebuild with examples/index_corpus.py)
+examples/demo_index/

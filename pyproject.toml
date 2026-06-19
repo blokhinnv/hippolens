@@ -1,14 +1,24 @@
 [project]
 name = "hippolens"
 version = "0.1.0"
-description = "Add your description here"
+description = "Visualization wrapper around HippoRAG with Streamlit UI"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "hipporag>=2.0.0a3",
+    # Pin: Phase A monkey-patches HippoRAG.run_ppr and graph_search_with_fact_entities.
+    "hipporag==2.0.0a3",
+    "python-dotenv>=1.0.0",
+    "streamlit>=1.40.0",
     "pytest>=9.1.0",
     "ruff>=0.15.17",
 ]
+
+[project.scripts]
+hippolens = "hippolens.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
